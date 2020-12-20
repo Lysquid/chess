@@ -1,3 +1,5 @@
+package Game;
+
 import java.util.ArrayList;
 
 import org.fusesource.jansi.Ansi.Color;
@@ -39,10 +41,6 @@ public class Player {
 
     public Piece[] getLostPieces() {
         return lost_pieces.toArray(new Piece[lost_pieces.size()]);
-    }
-
-    public boolean piece_belongs(Piece piece) {
-        return alive_pieces.contains(piece);
     }
 
 }

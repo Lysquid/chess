@@ -2,27 +2,31 @@ package Pieces;
 
 import org.fusesource.jansi.Ansi.Color;
 
-enum MoveErrors {
-    ILLEGAL, OCCUPIED, OBSTRUCTED, NO_CAPTURE
-}
+import Game.Board;
+import Game.Player;
 
 public abstract class Piece {
 
-    private Color color;
+    public enum Error {
+        INVALID_INPUT, NO_PIECE, OPPONENT_PIECE, ILLEGAL, OCCUPIED, OBSTRUCTED, NO_CAPTURE
+    }
+
     protected char symbol;
     protected String name;
+    protected Player player;
 
-    private int nbr_moves;
+    public int nbr_moves;
+    public int nbr_captures;
     private int x;
     private int y;
 
-    public Piece(Color color) {
-        this.color = color;
+    public Piece(Player player) {
+        this.player = player;
         nbr_moves = 0;
     }
 
     public Color getColor() {
-        return color;
+        return player.getColor();
     }
 
     public char getSymbol() {
@@ -33,14 +37,10 @@ public abstract class Piece {
         return name;
     }
 
-    public abstract boolean legalMove();
+    public abstract Error legalMove(Board board, int[] coords);
 
     public void incMoves() {
         nbr_moves++;
-    }
-
-    public int getNbrMoves() {
-        return nbr_moves;
     }
 
     public void setX(int x) {
@@ -54,6 +54,14 @@ public abstract class Piece {
     public int[] getCoords() {
         int[] coords = { x, y };
         return coords;
+    }
+
+    public boolean belongs_to(Player player) {
+        return (this.player == player);
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 
 }

@@ -1,19 +1,20 @@
 package Pieces;
 
-import org.fusesource.jansi.Ansi.Color;
+import Game.Board;
+import Game.Player;
 
 public class Pawn extends Piece {
 
-    public Pawn(Color color) {
-        super(color);
+    public Pawn(Player player) {
+        super(player);
         name = "Pawn";
         symbol = 'p';
     }
 
     @Override
-    public boolean legalMove() {
+    public Error legalMove(Board board, int[] coords) {
         // TODO Auto-generated method stub
-        return true;
+        return null;
     }
 
 }

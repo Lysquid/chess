@@ -1,6 +1,10 @@
+package Game;
+
 import org.fusesource.jansi.Ansi.Color;
 
+import Display.Display;
 import Pieces.Piece;
+import Pieces.Piece.Error;
 
 /**
  * Chess
@@ -35,6 +39,8 @@ public class Chess {
             int[][] move_coords;
             int[] piece_coords;
             int[] target_coords;
+            Piece piece;
+            Piece target_piece;
 
             do {
                 display.render(board, player_list);
@@ -44,31 +50,40 @@ public class Chess {
                     active_player = inactive_player;
                     game = false;
                 } else if (!display.is_valid(input)) {
-                    display.errorMsg(Errors.INVALID_INPUT);
+                    display.errorMsg(Error.INVALID_INPUT);
+                } else if (display.is_stat(input)) {
+                    piece_coords = display.convertInput(input);
+                    display.piece_stat(board, piece_coords);
                 } else {
-                    move_coords = display.convertInput(input);
+                    move_coords = display.convertMoveInput(input);
 
                     piece_coords = move_coords[0];
                     target_coords = move_coords[1];
                     if (board.is_free(piece_coords)) {
-                        display.errorMsg(Errors.NO_PIECE);
+                        display.errorMsg(Error.NO_PIECE);
                     } else {
-                        Piece piece = board.getPiece(piece_coords);
-                        Piece target_piece = board.getPiece(target_coords);
-                        if (!active_player.piece_belongs(piece)) {
-                            display.errorMsg(Errors.OPPONENT_PIECE);
-                        } else if (piece.legalMove()) {
-
-                            valid_move = true;
-
-                            if (board.is_free(target_coords)) {
-                                display.logMsg(piece, piece_coords, target_coords);
+                        piece = board.getPiece(piece_coords);
+                        target_piece = board.getPiece(target_coords);
+                        if (!piece.belongs_to(active_player)) {
+                            display.errorMsg(Error.OPPONENT_PIECE);
+                        } else {
+                            Error error = piece.legalMove(board, target_coords);
+                            if (error != null) {
+                                display.errorMsg(error);
                             } else {
-                                inactive_player.losePiece(target_piece);
-                                display.logMsg(piece, piece_coords, target_piece, target_coords);
-                            }
-                            board.movePiece(piece, piece_coords, target_coords);
 
+                                valid_move = true;
+
+                                if (board.is_free(target_coords)) {
+                                    display.logMsg(piece, piece_coords, target_coords);
+                                } else {
+                                    if (target_piece.belongs_to(inactive_player)) {
+                                        inactive_player.losePiece(target_piece);
+                                    }
+                                    display.logMsg(piece, piece_coords, target_piece, target_coords);
+                                }
+                                board.movePiece(piece, piece_coords, target_coords);
+                            }
                         }
                     }
                 }

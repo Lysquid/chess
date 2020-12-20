@@ -1,8 +1,14 @@
+package Game;
+
 import java.util.ArrayList;
 
-import org.fusesource.jansi.Ansi.Color;
-
-import Pieces.*;
+import Pieces.Bishop;
+import Pieces.King;
+import Pieces.Knight;
+import Pieces.Pawn;
+import Pieces.Piece;
+import Pieces.Queen;
+import Pieces.Rook;
 
 public class Board {
 
@@ -18,18 +24,17 @@ public class Board {
         for (int i = 0; i < player_list.length; i++) {
             int y;
             Player player = player_list[i];
-            Color color = player.getColor();
             Piece piece;
 
             ArrayList<Piece> pieces_row = new ArrayList<Piece>();
-            pieces_row.add(new Rook(color));
-            pieces_row.add(new Knight(color));
-            pieces_row.add(new Bishop(color));
-            pieces_row.add(new Queen(color));
-            pieces_row.add(new King(color));
-            pieces_row.add(new Bishop(color));
-            pieces_row.add(new Knight(color));
-            pieces_row.add(new Rook(color));
+            pieces_row.add(new Rook(player));
+            pieces_row.add(new Knight(player));
+            pieces_row.add(new Bishop(player));
+            pieces_row.add(new Queen(player));
+            pieces_row.add(new King(player));
+            pieces_row.add(new Bishop(player));
+            pieces_row.add(new Knight(player));
+            pieces_row.add(new Rook(player));
 
             y = (i == 0) ? 0 : 7;
             for (int x = 0; x < pieces_row.size(); x++) {
@@ -40,7 +45,7 @@ public class Board {
 
             y = (i == 0) ? 1 : 6;
             for (int x = 0; x < grid.length; x++) {
-                piece = new Pawn(color);
+                piece = new Pawn(player);
                 setPiece(piece, x, y);
                 player.addPiece(piece);
             }
@@ -77,6 +82,9 @@ public class Board {
 
     public void movePiece(Piece piece, int[] piece_coords, int[] target_coords) {
         setPiece(null, piece_coords);
+        if (!is_free(target_coords)) {
+            piece.nbr_captures++;
+        }
         setPiece(piece, target_coords);
         piece.incMoves();
     }

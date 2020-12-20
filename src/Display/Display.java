@@ -1,3 +1,5 @@
+package Display;
+
 import static org.fusesource.jansi.Ansi.Color.BLACK;
 
 import java.util.Scanner;
@@ -6,11 +8,10 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
 import org.fusesource.jansi.AnsiConsole;
 
+import Game.Board;
+import Game.Player;
 import Pieces.Piece;
-
-enum Errors {
-    INVALID_INPUT, NO_PIECE, OPPONENT_PIECE,
-}
+import Pieces.Piece.Error;
 
 public class Display {
 
@@ -151,9 +152,9 @@ public class Display {
 
     public boolean is_valid(String input) {
         char[] chars = StringToChar(input);
-        boolean valid = (chars.length == 4);
+        boolean valid = (chars.length == 4 || chars.length == 2);
         if (valid) {
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < chars.length / 2; i++) {
                 if (!((int) chars[i * 2] >= 97 && (int) chars[i * 2] <= 104)) {
                     valid = false;
                 }
@@ -165,7 +166,7 @@ public class Display {
         return valid;
     }
 
-    public void errorMsg(Errors error) {
+    public void errorMsg(Error error) {
         switch (error) {
             case INVALID_INPUT:
                 println("Invalid input");
@@ -176,16 +177,33 @@ public class Display {
             case OPPONENT_PIECE:
                 println("Cannot move opponent piece");
                 break;
+            case ILLEGAL:
+                println("Illegal move");
+                break;
+            case OBSTRUCTED:
+                println("Cannot move because of obstruction");
+                break;
+            case OCCUPIED:
+                println("Cannot move on already occupied tile");
+                break;
+            case NO_CAPTURE:
+                println("Requirements for this move not met");
+                break;
         }
     }
 
-    public int[][] convertInput(String input) {
-        char[] chars = StringToChar(input);
+    public int[][] convertMoveInput(String input) {
         int[][] coords = new int[2][2];
-        for (int i = 0; i < 2; i++) {
-            coords[i][0] = (int) chars[i * 2] - 97;
-            coords[i][1] = (int) chars[i * 2 + 1] - 49;
-        }
+        coords[0] = convertInput(input.substring(0, 2));
+        coords[1] = convertInput(input.substring(2, 4));
+        return coords;
+    }
+
+    public int[] convertInput(String input) {
+        char[] chars = StringToChar(input);
+        int[] coords = new int[2];
+        coords[0] = (int) chars[0] - 97;
+        coords[1] = (int) chars[1] - 49;
         return coords;
     }
 
@@ -211,6 +229,25 @@ public class Display {
         str.fgBright(target_piece.getColor()).a(target_piece.getName() + " ");
         str.reset().a(convertCoords(target_coords));
         println(str);
+    }
+
+    public boolean is_stat(String input) {
+        return (input.length() == 2);
+    }
+
+    public void piece_stat(Board board, int[] coords) {
+        Ansi str = new Ansi();
+        if (board.is_free(coords)) {
+            str.a("No piece in " + convertCoords(coords));
+        } else {
+            Piece piece = board.getPiece(coords);
+            Player player = piece.getPlayer();
+            str.fgBright(player.getColor()).a(player.getName()).reset();
+            str.a("'s " + piece.getName().toLowerCase() + " in " + convertCoords(coords) + " :\n");
+            str.a("moved " + piece.nbr_moves + " times\n");
+            str.a("captured " + piece.nbr_captures + " pieces\n");
+        }
+        print(str);
     }
 
 }

@@ -1,19 +1,20 @@
 package Pieces;
 
-import org.fusesource.jansi.Ansi.Color;
+import Game.Board;
+import Game.Player;
 
 public class Knight extends Piece {
 
-    public Knight(Color color) {
-        super(color);
+    public Knight(Player player) {
+        super(player);
         name = "Knight";
         symbol = 'n';
     }
 
     @Override
-    public boolean legalMove() {
+    public Error legalMove(Board board, int[] coords) {
         // TODO Auto-generated method stub
-        return true;
+        return null;
     }
 
 }
