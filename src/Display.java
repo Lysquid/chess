@@ -1,30 +1,50 @@
 import static org.fusesource.jansi.Ansi.Color.BLACK;
 
+import java.util.Scanner;
+
 import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Color;
 import org.fusesource.jansi.AnsiConsole;
 
 import Pieces.Piece;
 
+enum Errors {
+    INVALID_INPUT, NO_PIECE, OPPONENT_PIECE,
+}
+
 public class Display {
 
-    final char[] files = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
     final char corner = '■';
+    final char move = '→';
     final char[] square = { '▐', '▌' };
+    Scanner scanner;
 
     public void init() {
         AnsiConsole.systemInstall();
+        println(Ansi.ansi().eraseScreen());
+        scanner = new Scanner(System.in);
     }
 
     public void exit() {
         AnsiConsole.systemUninstall();
+        scanner.close();
+        System.exit(0);
+    }
+
+    public static void println(Ansi str) {
+        AnsiConsole.out().println(str);
     }
 
     public static void print(Ansi str) {
         AnsiConsole.out().print(str);
     }
 
+    public static void println(String str) {
+        println(Ansi.ansi().a(str));
+    }
+
     public Ansi renderPiece(Piece piece, int which_bg, int x) {
-        Ansi str = Ansi.ansi();
+        Ansi str = new Ansi();
         switch (which_bg) {
             case 0:
                 str.fgBright(BLACK).a(square[0]);
@@ -59,29 +79,138 @@ public class Display {
 
     }
 
-    public void render(Board board) {
-        Ansi str = Ansi.ansi().eraseScreen();
-        str.fgBright(BLACK).a(corner + " ");
-        for (char file : files) {
-            str.a(file + " ");
+    public Ansi render_lost_pieces(Player player) {
+        Ansi str = new Ansi();
+        Piece[] lost_pieces = player.getLostPieces();
+        str.a("\n ");
+        if (lost_pieces.length > 0) {
+            str.fgBright(player.getColor());
+            for (Piece piece : lost_pieces) {
+                str.a(piece.getSymbol());
+            }
         }
-        str.a(corner + "\n");
+        str.reset().a("\n");
+        return str;
+    }
+
+    public void render(Board board, Player[] player_list) {
+        Ansi str = new Ansi();
+        Ansi line = new Ansi();
+
+        str.a(render_lost_pieces(player_list[0]));
+
+        line.fgBright(BLACK).a(corner + " ");
+        for (int i = 0; i < 8; i++) {
+            line.a((char) (97 + i) + " ");
+        }
+        line.a(corner + "\n");
+        str.a("\n" + line);
 
         for (int y = 0; y < 8; y++) {
             str.a(8 - y);
             for (int x = 0; x < 8; x++) {
-                Piece piece = board.getPiece(x, y);
-                int which_bg = (x + y) % 2;
+                Piece piece = board.getPiece(x, 7 - y);
+                int which_bg = (x + (7 - y)) % 2;
                 str.a(renderPiece(piece, which_bg, x));
             }
             str.reset().fgBright(BLACK).a(8 - y + "\n");
         }
 
-        str.fgBright(BLACK).a(corner + " ");
-        for (char file : files) {
-            str.a(file + " ");
-        }
-        str.a(corner + "\n");
-        print(str);
+        str.a(line).reset();
+        str.a(render_lost_pieces(player_list[1]));
+
+        println(str);
     }
+
+    public String getInput(Player player) {
+        Color color = player.getColor();
+        print(Ansi.ansi().fgBright(color).a(player.getName() + " > ").reset());
+        String input = scanner.nextLine();
+        input = input.replaceAll("\\s+", "");
+        return input;
+    }
+
+    public boolean is_resigning(String input) {
+        return (input.equals("resign") || input.equals("exit"));
+    }
+
+    public void winMsg(Player player, int nbr_turns) {
+        Color color = player.getColor();
+        println(Ansi.ansi().fgBright(color).a("\n" + player.getName()).reset().a(" won after " + nbr_turns + " turns"));
+    }
+
+    public static char[] StringToChar(String str) {
+        char[] chars = new char[str.length()];
+
+        for (int i = 0; i < str.length(); i++) {
+            chars[i] = str.charAt(i);
+        }
+        return chars;
+
+    }
+
+    public boolean is_valid(String input) {
+        char[] chars = StringToChar(input);
+        boolean valid = (chars.length == 4);
+        if (valid) {
+            for (int i = 0; i < 2; i++) {
+                if (!((int) chars[i * 2] >= 97 && (int) chars[i * 2] <= 104)) {
+                    valid = false;
+                }
+                if (!((int) chars[i * 2 + 1] >= 49 && (int) chars[i * 2 + 1] <= 56)) {
+                    valid = false;
+                }
+            }
+        }
+        return valid;
+    }
+
+    public void errorMsg(Errors error) {
+        switch (error) {
+            case INVALID_INPUT:
+                println("Invalid input");
+                break;
+            case NO_PIECE:
+                println("No piece to move");
+                break;
+            case OPPONENT_PIECE:
+                println("Cannot move opponent piece");
+                break;
+        }
+    }
+
+    public int[][] convertInput(String input) {
+        char[] chars = StringToChar(input);
+        int[][] coords = new int[2][2];
+        for (int i = 0; i < 2; i++) {
+            coords[i][0] = (int) chars[i * 2] - 97;
+            coords[i][1] = (int) chars[i * 2 + 1] - 49;
+        }
+        return coords;
+    }
+
+    public String convertCoords(int[] coords) {
+        String str = new String();
+        str += (char) (97 + coords[0]);
+        str += (char) (49 + coords[1]);
+        return str;
+    }
+
+    public void logMsg(Piece piece, int[] piece_coords, int[] target_coords) {
+        Ansi str = new Ansi();
+        str.fgBright(piece.getColor()).a(piece.getName() + " ");
+        str.reset().a(convertCoords(piece_coords) + " " + move + " ");
+        str.a(convertCoords(target_coords));
+        println(str);
+    }
+
+    public void logMsg(Piece piece, int[] piece_coords, Piece target_piece, int[] target_coords) {
+        Ansi str = new Ansi();
+        str.fgBright(piece.getColor()).a(piece.getName() + " ");
+        str.reset().a(convertCoords(piece_coords) + " " + move + " ");
+        str.fgBright(target_piece.getColor()).a(target_piece.getName() + " ");
+        str.reset().a(convertCoords(target_coords));
+        println(str);
+    }
+
 }

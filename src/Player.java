@@ -24,4 +24,25 @@ public class Player {
         alive_pieces.add(piece);
     }
 
+    public boolean in_checkmate() {
+        return false;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void losePiece(Piece target_piece) {
+        alive_pieces.remove(target_piece);
+        lost_pieces.add(target_piece);
+    }
+
+    public Piece[] getLostPieces() {
+        return lost_pieces.toArray(new Piece[lost_pieces.size()]);
+    }
+
+    public boolean piece_belongs(Piece piece) {
+        return alive_pieces.contains(piece);
+    }
+
 }
