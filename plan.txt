@@ -1,0 +1,44 @@
+int nbr_turns = 0; 
+player P1 = new Player();
+player P2 = new Player();
+final Player[] player_list = {P1, P2};
+const player active_player; 
+const player inactive_player; 
+board.placePieces(P1, P2);
+Piece piece;
+{
+    active_player = player_list[nbr_turns%2];
+    inactive_player = player_list[nbr_turns%2+1];
+    boolean valid_move = false;
+    do {    
+        int[][] move = interface.getInput(active_player);
+        int[] piece_coords = move[0];
+        int[] target_coords = move[1];
+        piece = grid.getPiece[piece_coords];
+        if (!piece.is_legal(target_coords)) {
+            interface.errorMsg(INVALID_MOVE);
+        } else {
+            if (!piece.is_possible(grid, target_coords)) {
+                interface.errorMsg(IMPOSSIBLE_MOVE);
+            } else {
+                if (active_player.is_in_check(grid, piece_coords, target_coords)) {
+                    interface.errorMsg(KING_IN_CHECK);
+                } else {
+                    valid_move = true;
+                }
+            }
+
+        
+        } 
+    while (!valid_move);
+    
+    if (grid.is_free(target_coords)) {
+        interface.logMsg(piece);
+    } else {
+        Piece target_piece = grid.getPiece(target_coords);
+        inactive_player.losePiece(targetPiece);
+        interface.logMsg(piece);
+    }
+    grid.remPiece(piece_coords);
+    grid.setPiece(piece, target_coords);
+} while (!inactive_player.is_in_check)

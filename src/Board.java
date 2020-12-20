@@ -1,43 +1,40 @@
-import Pieces.*;
-
-import static org.fusesource.jansi.Ansi.Color.*;
-
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Color;
+import Pieces.Pawn;
+import Pieces.Piece;
 
 public class Board {
 
-    private Square[][] grid;
+    private Piece[][] grid;
 
     public Board() {
-        grid = new Square[8][8];
-        for (int y = 0; y < 8; y++) {
-            for (int x = 0; x < 8; x++) {
-                Color color = ((x + y) % 2 == 0) ? WHITE : BLACK;
-                grid[y][x] = new Square(color, x, y);
-            }
-        }
-        grid[1][0].setPiece(new Pawn(1));
-        grid[1][1].setPiece(new Pawn(1));
-        grid[6][0].setPiece(new Pawn(2));
-        grid[6][1].setPiece(new Pawn(2));
-    }
-
-    public Ansi render() {
-        Ansi string = Ansi.ansi().eraseScreen();
-        Square square;
-        string.fgBright(BLACK).a("  a b c d e f g h  \n");
-
-        for (int y = 0; y < 8; y++) {
-            string.a(8 - y);
-            for (int x = 0; x < 8; x++) {
-                square = grid[y][x];
-                string.a(square.render());
-            }
-            string.reset().fgBright(BLACK).a(8 - y + "\n");
-        }
-        string.fgBright(BLACK).a("  a b c d e f g h  \n");
-        return string;
+        grid = new Piece[8][8];
 
     }
+
+    public void placePieces(Player[] player_list) {
+        setPiece(new Pawn(player_list[0].getColor()), 0, 1);
+        setPiece(new Pawn(player_list[0].getColor()), 1, 1);
+        setPiece(new Pawn(player_list[1].getColor()), 0, 6);
+        setPiece(new Pawn(player_list[1].getColor()), 1, 6);
+    }
+
+    public Piece getPiece(int x, int y) {
+        return grid[x][y];
+    }
+
+    public Piece getPiece(int[] coords) {
+        int x = coords[0];
+        int y = coords[0];
+        return getPiece(x, y);
+    }
+
+    public void setPiece(Piece piece, int x, int y) {
+        grid[x][y] = piece;
+    }
+
+    public void setPiece(Piece piece, int[] coords) {
+        int x = coords[0];
+        int y = coords[0];
+        setPiece(piece, x, y);
+    }
+
 }

@@ -1,4 +1,4 @@
-import org.fusesource.jansi.AnsiConsole;
+import org.fusesource.jansi.Ansi.Color;
 
 /**
  * Chess
@@ -7,16 +7,16 @@ public class Chess {
 
     public static void main(String[] args) {
 
-        AnsiConsole.systemInstall();
-        // Ansi str =
-        // ansi().eraseScreen().fg(RED).a(ansi().fg(BLUE).a("8")).fg(GREEN).a("
-        // World").reset();
-        // System.out.println(str);
+        Player P1 = new Player("P1", Color.RED);
+        Player P2 = new Player("P2", Color.BLUE);
+        Player[] player_list = { P1, P2 };
 
         Board board = new Board();
-        System.out.print(board.render());
+        board.placePieces(player_list);
 
-        AnsiConsole.systemUninstall();
-
+        Display display = new Display();
+        display.init();
+        display.render(board);
+        display.exit();
     }
 }

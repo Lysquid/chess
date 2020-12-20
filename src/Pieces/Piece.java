@@ -1,22 +1,22 @@
 package Pieces;
 
-import static org.fusesource.jansi.Ansi.ansi;
-import static org.fusesource.jansi.Ansi.Color.BLUE;
-import static org.fusesource.jansi.Ansi.Color.RED;
-
-import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Color;
 
 public class Piece {
 
+    private Color color;
     protected char symbol;
-    protected int player;
 
-    public Piece(int player) {
-        this.player = player;
+    public Piece(Color color) {
+        this.color = color;
     }
 
-    public Ansi render() {
-        return ansi().fgBright((player == 1) ? RED : BLUE).a(symbol).reset();
+    public Color getColor() {
+        return color;
+    }
+
+    public char getSymbol() {
+        return symbol;
     }
 
 }
