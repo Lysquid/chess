@@ -20,4 +20,8 @@ public class Player {
         return color;
     }
 
+    public void addPiece(Piece piece) {
+        alive_pieces.add(piece);
+    }
+
 }

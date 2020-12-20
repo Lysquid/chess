@@ -9,6 +9,7 @@ public class Display {
 
     final char[] files = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
     final char corner = '■';
+    final char[] square = { '▐', '▌' };
 
     public void init() {
         AnsiConsole.systemInstall();
@@ -26,7 +27,7 @@ public class Display {
         Ansi str = Ansi.ansi();
         switch (which_bg) {
             case 0:
-                str.fgBright(BLACK).a('▐');
+                str.fgBright(BLACK).a(square[0]);
                 str.bgBright(BLACK);
                 break;
             case 1:
@@ -46,7 +47,7 @@ public class Display {
         str.reset();
         switch (which_bg) {
             case 0:
-                str.fgBright(BLACK).a('▌');
+                str.fgBright(BLACK).a(square[1]);
                 break;
             case 1:
                 if (x == 7) {

@@ -1,9 +1,9 @@
 int nbr_turns = 0; 
 player P1 = new Player();
 player P2 = new Player();
-final Player[] player_list = {P1, P2};
-const player active_player; 
-const player inactive_player; 
+Player[] player_list = {P1, P2};
+Player active_player; 
+Player inactive_player; 
 board.placePieces(P1, P2);
 Piece piece;
 {
